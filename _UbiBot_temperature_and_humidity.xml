@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<feed  version="1.0" hasPendingRequests="false" >
+  <company></company>
+  <status>200</status>
+  <errmsg>OK</errmsg>
+  <interval>0</interval>
+    <entry type="predatasource">
+        <version>1561580072</version>
+        <name>_UbiBot_temperature and humidity</name>
+        <displayedas>_UbiBot_temperature and humidity</displayedas>
+        <description>Retrieves info from UbiBot cloud API. By Mike Suding</description>
+        <collector>batchscript</collector>
+        <hasMultiInstances>true</hasMultiInstances>
+        <schedule>180</schedule>
+        <appliesTo>ubibot_api.key</appliesTo>
+        <wildcardauto>true</wildcardauto>
+        <wildcardpersist>false</wildcardpersist>
+        <wildcardlinuxscript>ad_script</wildcardlinuxscript>
+        <wildcardlinuxcmdline>type=&#34;embeded&#34; </wildcardlinuxcmdline>
+        <wildcardwinscript>ad_script</wildcardwinscript>
+        <wildcardwincmdline>type=&#34;embeded&#34; </wildcardwincmdline>
+        <wildcardgroovyscript>def AccessKey = hostProps.get(&#34;ubibot_api.key&#34;)
+def BaseUrl = &#34;https://api.ubibot.io/channels&#34;
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.impl.client.HttpClients
+import org.apache.http.client.methods.HttpPut
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.util.EntityUtils
+import org.apache.http.entity.StringEntity
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
+import org.apache.commons.codec.binary.Hex
+import groovy.json.*
+import java.text.ParseException
+import java.text.SimpleDateFormat
+def ApiUrl = BaseUrl + &#34;?account_key=&#34; + AccessKey // URL with Access Key
+httpclient = HttpClients.createDefault() //Create client and make request
+httpGet = new HttpGet(ApiUrl)
+response = httpclient.execute(httpGet)
+responseBody = EntityUtils.toString(response.getEntity())
+JsonSlurperParser = new JsonSlurper()  // parse response
+ResponseObject = JsonSlurperParser.parseText(responseBody)
+ResponseObject.channels.each // print info about channels
+{
+	println it.channel_id + &#34;##&#34; + it.name + &#34;##&#34; + it.description
+}
+return 0</wildcardgroovyscript>
+        <wildcardschedule>15</wildcardschedule>
+        <wildcarddisable>false</wildcarddisable>
+        <wildcarddeleteinactive>false</wildcarddeleteinactive>
+        <agdmethod>none</agdmethod>
+        <agdparams></agdparams>
+        <group></group>
+        <tags></tags>
+        <technology></technology>
+        <adlist><![CDATA[{"agdmethod":"none","method":"ad_script","agdparams":"","id":0,"filters":[],"params":{"type":"embeded","groovyscript":"def AccessKey = hostProps.get(\"ubibot_api.key\")\r\ndef BaseUrl = \"https://api.ubibot.io/channels\"\r\nimport org.apache.http.client.methods.HttpGet\r\nimport org.apache.http.impl.client.CloseableHttpClient\r\nimport org.apache.http.impl.client.HttpClients\r\nimport org.apache.http.client.methods.HttpPut\r\nimport org.apache.http.client.methods.HttpPost\r\nimport org.apache.http.util.EntityUtils\r\nimport org.apache.http.entity.StringEntity\r\nimport javax.crypto.Mac\r\nimport javax.crypto.spec.SecretKeySpec\r\nimport org.apache.commons.codec.binary.Hex\r\nimport groovy.json.*\r\nimport java.text.ParseException\r\nimport java.text.SimpleDateFormat\r\ndef ApiUrl = BaseUrl + \"?account_key=\" + AccessKey // URL with Access Key\r\nhttpclient = HttpClients.createDefault() //Create client and make request\r\nhttpGet = new HttpGet(ApiUrl)\r\nresponse = httpclient.execute(httpGet)\r\nresponseBody = EntityUtils.toString(response.getEntity())\r\nJsonSlurperParser = new JsonSlurper()  // parse response\r\nResponseObject = JsonSlurperParser.parseText(responseBody)\r\nResponseObject.channels.each // print info about channels\r\n{\r\n\tprintln it.channel_id + \"##\" + it.name + \"##\" + it.description\r\n}\r\nreturn 0"}}]]></adlist>
+        <schemaVersion>2</schemaVersion>
+        <dataSourceType>1</dataSourceType>
+        <attributes>
+        <attribute>
+            <name>scripttype</name>
+            <value>embed</value>
+            <comment></comment>
+        </attribute>
+        <attribute>
+            <name>scriptgroovy</name>
+            <value>def AccessKey = hostProps.get(&#34;ubibot_api.key&#34;)
+def BaseUrl = &#34;https://api.ubibot.io/channels&#34;
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.impl.client.HttpClients
+import org.apache.http.util.EntityUtils
+import groovy.json.*
+def ApiUrl = BaseUrl + &#34;?account_key=&#34; + AccessKey // URL with Access Key
+try // Handle errors on HTTP requests
+{
+    httpclient = HttpClients.createDefault() //Create client and make request
+    httpGet = new HttpGet(ApiUrl)
+    response = httpclient.execute(httpGet)
+    responseBody = EntityUtils.toString(response.getEntity())
+    if (response.getStatusLine().getStatusCode() != 200) // check if response code is 200
+    {
+        return 10
+    }
+}
+catch (ex)
+{
+    return 20
+}
+try { // catch parsing errors
+    JsonSlurperParser = new JsonSlurper() //parse response
+    ResponseObject = JsonSlurperParser.parseText(responseBody)
+    ResponseObject.channels.each //print info about channels
+            { // copy current channel object, parse last values field and get field names from channel object
+                ChannelObject = it
+                ValuesParsed = JsonSlurperParser.parseText(it.last_values)
+                ValuesParsed.each {
+                    ParameterValue = it.value.value
+                    ParameterName = ChannelObject.&#34;${it.key}&#34;
+                    println ChannelObject.channel_id + &#34;.&#34; + ParameterName.replaceAll(&#34; &#34;, &#34;&#34;).toLowerCase() + &#34;=&#34; + ParameterValue
+                }
+            }
+}
+catch (ex)
+  {return 30}
+return 0</value>
+            <comment></comment>
+        </attribute>
+        <attribute>
+            <name>windowsscript</name>
+            <value></value>
+            <comment></comment>
+        </attribute>
+        <attribute>
+            <name>linuxscript</name>
+            <value></value>
+            <comment></comment>
+        </attribute>
+        <attribute>
+            <name>windowscmdline</name>
+            <value></value>
+            <comment></comment>
+        </attribute>
+        <attribute>
+            <name>linuxcmdline</name>
+            <value></value>
+            <comment></comment>
+        </attribute>
+        </attributes>
+        <datapoints>
+        <datapoint>
+            <name>ExitCode</name>
+            <dataType>4</dataType>
+            <type>2</type>
+            <postprocessormethod>none</postprocessormethod>
+            <postprocessorparam></postprocessorparam>
+            <usevalue>exitCode</usevalue>
+            <alertexpr></alertexpr>
+            <alertmissing>1</alertmissing>
+            <alertsubject></alertsubject>
+            <alertbody></alertbody>
+            <description>0 - OK
+10 - No expected HTTP response code
+20 - HTTP request failed
+30 - response parsing failed</description>
+            <maxvalue></maxvalue>
+            <minvalue></minvalue>
+            <userparam1></userparam1>
+            <userparam2></userparam2>
+            <userparam3></userparam3>
+            <iscomposite>false</iscomposite>
+            <rpn></rpn>
+            <alertTransitionIval>0</alertTransitionIval>
+            <alertClearTransitionIval>0</alertClearTransitionIval>
+        </datapoint>
+        <datapoint>
+            <name>Humidity</name>
+            <dataType>7</dataType>
+            <type>2</type>
+            <postprocessormethod>namevalue</postprocessormethod>
+            <postprocessorparam>##wildvalue##.humidity</postprocessorparam>
+            <usevalue>output</usevalue>
+            <alertexpr></alertexpr>
+            <alertmissing>1</alertmissing>
+            <alertsubject></alertsubject>
+            <alertbody></alertbody>
+            <description></description>
+            <maxvalue></maxvalue>
+            <minvalue></minvalue>
+            <userparam1></userparam1>
+            <userparam2></userparam2>
+            <userparam3></userparam3>
+            <iscomposite>false</iscomposite>
+            <rpn></rpn>
+            <alertTransitionIval>0</alertTransitionIval>
+            <alertClearTransitionIval>0</alertClearTransitionIval>
+        </datapoint>
+        <datapoint>
+            <name>Light</name>
+            <dataType>7</dataType>
+            <type>2</type>
+            <postprocessormethod>namevalue</postprocessormethod>
+            <postprocessorparam>##wildvalue##.light</postprocessorparam>
+            <usevalue>output</usevalue>
+            <alertexpr></alertexpr>
+            <alertmissing>1</alertmissing>
+            <alertsubject></alertsubject>
+            <alertbody></alertbody>
+            <description></description>
+            <maxvalue></maxvalue>
+            <minvalue></minvalue>
+            <userparam1></userparam1>
+            <userparam2></userparam2>
+            <userparam3></userparam3>
+            <iscomposite>false</iscomposite>
+            <rpn></rpn>
+            <alertTransitionIval>0</alertTransitionIval>
+            <alertClearTransitionIval>0</alertClearTransitionIval>
+        </datapoint>
+        <datapoint>
+            <name>Temperature_celsius</name>
+            <dataType>7</dataType>
+            <type>2</type>
+            <postprocessormethod>namevalue</postprocessormethod>
+            <postprocessorparam>##wildvalue##.temperature</postprocessorparam>
+            <usevalue>output</usevalue>
+            <alertexpr></alertexpr>
+            <alertmissing>1</alertmissing>
+            <alertsubject></alertsubject>
+            <alertbody></alertbody>
+            <description></description>
+            <maxvalue></maxvalue>
+            <minvalue></minvalue>
+            <userparam1></userparam1>
+            <userparam2></userparam2>
+            <userparam3></userparam3>
+            <iscomposite>false</iscomposite>
+            <rpn></rpn>
+            <alertTransitionIval>0</alertTransitionIval>
+            <alertClearTransitionIval>0</alertClearTransitionIval>
+        </datapoint>
+        <datapoint>
+            <name>Voltage</name>
+            <dataType>7</dataType>
+            <type>2</type>
+            <postprocessormethod>namevalue</postprocessormethod>
+            <postprocessorparam>##wildvalue##.voltage</postprocessorparam>
+            <usevalue>output</usevalue>
+            <alertexpr></alertexpr>
+            <alertmissing>1</alertmissing>
+            <alertsubject></alertsubject>
+            <alertbody></alertbody>
+            <description></description>
+            <maxvalue></maxvalue>
+            <minvalue></minvalue>
+            <userparam1></userparam1>
+            <userparam2></userparam2>
+            <userparam3></userparam3>
+            <iscomposite>false</iscomposite>
+            <rpn></rpn>
+            <alertTransitionIval>0</alertTransitionIval>
+            <alertClearTransitionIval>0</alertClearTransitionIval>
+        </datapoint>
+        <datapoint>
+            <name>WIFI_RSSI</name>
+            <dataType>7</dataType>
+            <type>2</type>
+            <postprocessormethod>namevalue</postprocessormethod>
+            <postprocessorparam>##wildvalue##.wifirssi</postprocessorparam>
+            <usevalue>output</usevalue>
+            <alertexpr></alertexpr>
+            <alertmissing>1</alertmissing>
+            <alertsubject></alertsubject>
+            <alertbody></alertbody>
+            <description></description>
+            <maxvalue></maxvalue>
+            <minvalue></minvalue>
+            <userparam1></userparam1>
+            <userparam2></userparam2>
+            <userparam3></userparam3>
+            <iscomposite>false</iscomposite>
+            <rpn></rpn>
+            <alertTransitionIval>0</alertTransitionIval>
+            <alertClearTransitionIval>0</alertClearTransitionIval>
+        </datapoint>
+        <datapoint>
+            <name>Temperature_farenheit</name>
+            <dataType>7</dataType>
+            <type>2</type>
+            <postprocessormethod>expression</postprocessormethod>
+            <postprocessorparam>Temperature_celsius*1.8+32</postprocessorparam>
+            <usevalue></usevalue>
+            <alertexpr></alertexpr>
+            <alertmissing>1</alertmissing>
+            <alertsubject></alertsubject>
+            <alertbody></alertbody>
+            <description>convert from the native Celsius</description>
+            <maxvalue></maxvalue>
+            <minvalue></minvalue>
+            <userparam1></userparam1>
+            <userparam2></userparam2>
+            <userparam3></userparam3>
+            <iscomposite>false</iscomposite>
+            <rpn></rpn>
+            <alertTransitionIval>0</alertTransitionIval>
+            <alertClearTransitionIval>0</alertClearTransitionIval>
+        </datapoint>
+        </datapoints>
+        <graphs>
+        <graph>
+            <name>Humidity percent</name>
+            <title>Humidity percent</title>
+            <verticallabel>% humidity</verticallabel>
+            <rigid>false</rigid>
+            <maxvalue>100.0</maxvalue>
+            <minvalue>0.0</minvalue>
+            <displayprio>2</displayprio>
+            <timescale>1day</timescale>
+            <base1024>false</base1024>
+            <graphdatapoints>
+        <graphdatapoint>
+            <name>Humidity</name>
+            <datapointname>Humidity</datapointname>
+            <cf>1</cf>
+        </graphdatapoint>
+            </graphdatapoints>
+            <graphvirtualdatapoints>
+            </graphvirtualdatapoints>
+            <graphdatas>
+            <graphdata>
+                <type>2</type>
+                <legend>Humidity</legend>
+                <color>olive</color>
+                <datapointname>Humidity</datapointname>
+                <isvirtualdatapoint>false</isvirtualdatapoint>
+            </graphdata>
+            </graphdatas>
+        </graph>
+        <graph>
+            <name>Light (lux)</name>
+            <title>Light (lux)</title>
+            <verticallabel>lux</verticallabel>
+            <rigid>false</rigid>
+            <maxvalue>200.0</maxvalue>
+            <minvalue>0.0</minvalue>
+            <displayprio>3</displayprio>
+            <timescale>1day</timescale>
+            <base1024>false</base1024>
+            <graphdatapoints>
+        <graphdatapoint>
+            <name>Light</name>
+            <datapointname>Light</datapointname>
+            <cf>1</cf>
+        </graphdatapoint>
+            </graphdatapoints>
+            <graphvirtualdatapoints>
+            </graphvirtualdatapoints>
+            <graphdatas>
+            <graphdata>
+                <type>2</type>
+                <legend>Light</legend>
+                <color>fuchsia</color>
+                <datapointname>Light</datapointname>
+                <isvirtualdatapoint>false</isvirtualdatapoint>
+            </graphdata>
+            </graphdatas>
+        </graph>
+        <graph>
+            <name>Temperature (F)</name>
+            <title>Temperature (F)</title>
+            <verticallabel>degrees F</verticallabel>
+            <rigid>false</rigid>
+            <maxvalue>110.0</maxvalue>
+            <minvalue>0.0</minvalue>
+            <displayprio>1</displayprio>
+            <timescale>1day</timescale>
+            <base1024>false</base1024>
+            <graphdatapoints>
+        <graphdatapoint>
+            <name>Temperature_farenheit</name>
+            <datapointname>Temperature_farenheit</datapointname>
+            <cf>1</cf>
+        </graphdatapoint>
+            </graphdatapoints>
+            <graphvirtualdatapoints>
+            </graphvirtualdatapoints>
+            <graphdatas>
+            <graphdata>
+                <type>3</type>
+                <legend>Temperature_farenheit</legend>
+                <color>red</color>
+                <datapointname>Temperature_farenheit</datapointname>
+                <isvirtualdatapoint>false</isvirtualdatapoint>
+            </graphdata>
+            </graphdatas>
+        </graph>
+        </graphs>
+        <overviewgraphs>
+        </overviewgraphs>
+        <scripts>
+        </scripts>
+    </entry>
+</feed>
